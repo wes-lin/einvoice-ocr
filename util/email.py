@@ -1,6 +1,5 @@
 from typing import List
 from email.message import EmailMessage
-from email.mime.image import MIMEImage
 from email.mime.application import MIMEApplication
 from email.mime.nonmultipart import MIMENonMultipart
 import email
@@ -23,12 +22,8 @@ def _extract_message(message: EmailMessage, messages: List[EmailMessage]):
     messages.append(message)
 
 
-def build_MIME(data, content_type: str, fil_name) -> MIMENonMultipart:
-    mime = None
-    if content_type.startswith("image/"):
-        mime = MIMEImage(data, content_type.split("/")[1])
-    else:
-        mime = MIMEApplication(data)
+def build_MIME(data, fil_name) -> MIMENonMultipart:
+    mime = MIMEApplication(data)
     mime.add_header("Content-Description", fil_name)
     mime.add_header("Content-Disposition", "attachment", filename=fil_name)
     return mime

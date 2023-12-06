@@ -43,8 +43,10 @@ def get_bill(message: Message):
     bill: Bill = None
     if file_name.endswith(".pdf"):
         bill = PDFBill(base64_byte(message.get_payload()))
-    elif content_type.startswith("image/"):
-        text = ocr.extract_text(file_name, message.get_payload(), content_type)
+    elif file_name.endswith(".jpg") or file_name.endswith(".png"):
+        text = ocr.extract_text(
+            file_name, message.get_payload(), file_name.split(".")[1]
+        )
         bill = Bill(text)
     else:
         logging.error("unsupport file:{}".format(file_name))
@@ -89,7 +91,7 @@ def get_user_file_config(user_id, group, type):
 
 @functools.cache
 def get_user_by_email(email: str):
-    return db["uses"].find_one({"email": {"$regex": email, "$options": "$i"}})
+    return db["uses"].find_one({"email": {"$regex": email, "$options": "i"}})
 
 
 def send_result_messag(_from: str, attachments: List, content: MIMEBase):
@@ -105,7 +107,6 @@ def send_result_messag(_from: str, attachments: List, content: MIMEBase):
         mm.attach(
             build_MIME(
                 attachment["payload"],
-                attachment["content_type"],
                 attachment["new_file_name"],
             )
         )

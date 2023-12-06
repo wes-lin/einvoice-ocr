@@ -5,7 +5,7 @@ db.uses.drop();
 
 db.uses.createIndex({"email":1}, {"unique":true});
 db.uses.insertMany([
-  { '_id': 1, 'email': 'wes_lin@189.cn', 'userName': 'Wes', 'createdAt': new Date(), 'lastLoginAt': new Date() },
+  { '_id': 1, 'email': 'Wes_lin@189.cn', 'userName': 'Wes', 'createdAt': new Date(), 'lastLoginAt': new Date() },
 ]);
 
 db.templates.drop();

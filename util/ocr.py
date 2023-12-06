@@ -33,7 +33,7 @@ class OCR:
             "tool": "",
             "count": 0,
             "_token": self.token,
-            "base64": "data:{ext};base64,{data}".format(
+            "base64": "data:image/{ext};base64,{data}".format(
                 ext=file_type, data=file_base64
             ),
         }
