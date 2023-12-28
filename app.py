@@ -147,6 +147,7 @@ def extract_bill(message: EmailMessage, user):
                 "userName": user["userName"],
                 "fileExt": attachment["file_name"].split(".")[1],
             }
+            logging.warning(attachment["file_vars"])
             for var in file_config["vars"]:
                 file_vars = attachment["file_vars"]
                 _val: str = file_vars[var["code"]]
