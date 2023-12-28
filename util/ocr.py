@@ -43,6 +43,7 @@ class OCR:
         if response.ok:
             logging.warning("识别成功")
             json = response.json()
+            logging.warning(json)
             text = json["text"]
             return text
         else:
