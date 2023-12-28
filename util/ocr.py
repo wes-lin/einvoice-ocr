@@ -40,8 +40,8 @@ class OCR:
         response = self.session.post(
             self.OCR_HOST + "/image-to-text", headers=self.headers, data=data
         )
-        logging.warning(response)
         logging.warning("识别成功")
+        logging.warning(response.json())
         json = response.json()
         text = json["text"]
         return text
