@@ -40,12 +40,16 @@ class OCR:
         response = self.session.post(
             self.OCR_HOST + "/image-to-text", headers=self.headers, data=data
         )
-        logging.warning("识别成功")
-        logging.warning(response.json())
-        json = response.json()
-        text = json["text"]
-        return text
-
+        if response.ok:
+            logging.warning("识别成功")
+            json = response.json()
+            text = json["text"]
+            return text
+        else:
+            logging.warning("识别失败")
+            logging.warning(response.text)
+            return None
+            
     def get_token(self):
         res = self.session.get(self.OCR_HOST)
         result = re.finditer(self.TOKEN, res.text)
