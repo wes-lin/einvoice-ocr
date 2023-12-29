@@ -99,7 +99,7 @@ def send_result_messag(_from: str, attachments: List, content: MIMEBase):
     mm["From"] = os.getenv("EMAIL_USER")
     mm["To"] = _from
     mm["Subject"] = Header(
-        "报销单据{}".format(datetime.now().strftime("%Y%m%d%H%M%S")), "utf-8"
+        "Invoice Report {}".format(datetime.now().strftime("%Y%m%d%H%M%S")), "utf-8"
     )
     mm.attach(content)
 
