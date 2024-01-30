@@ -37,17 +37,17 @@ db.templates.insertMany([
           {
             code: "orderMoney",
             dataType: "num",
-            regExp: "总计\\s+(?P<orderMoney>[0-9]+.[0-9]+)",
+            regExp: "总计\\s+(?P<orderMoney>([0-9]+|[0-9]{0,})(.[0-9]{1,2}))",
           },
           {
             code: "orderMoney",
             dataType: "num",
-            regExp: "合计\\s+(?P<orderMoney>[0-9]+.[0-9]+)",
+            regExp: "合计\\s+(?P<orderMoney>([0-9]+|[0-9]{0,})(.[0-9]{1,2}))",
           },
           {
             code: "orderMoney",
             dataType: "num",
-            regExp: "实付款\\s+(?P<orderMoney>[0-9]+.[0-9]+)",
+            regExp: "实付款\\s+(?P<orderMoney>([0-9]+|[0-9]{0,})(.[0-9]{1,2}))",
           },
         ],
       },
@@ -65,7 +65,7 @@ db.templates.insertMany([
           {
             code: "invoiceMoney",
             dataType: "num",
-            regExp: "（小写）(?P<invoiceMoney>[0-9]+.[0-9]+)",
+            regExp: "（小写）(?P<invoiceMoney>([0-9]+|[0-9]{0,})(.[0-9]{1,2}))",
           },
         ],
       },
@@ -97,7 +97,7 @@ db.templates.insertMany([
           {
             code: "tripMoney",
             dataType: "num",
-            regExp: "合计(?P<tripMoney>[0-9]+.[0-9]+)",
+            regExp: "合计(?P<tripMoney>([0-9]+|[0-9]{0,})(.[0-9]{1,2}))",
           },
         ],
       },
@@ -115,7 +115,7 @@ db.templates.insertMany([
           {
             code: "invoiceMoney",
             dataType: "num",
-            regExp: "（小写）(?P<invoiceMoney>[0-9]+.[0-9]+)",
+            regExp: "（小写）(?P<invoiceMoney>([0-9]+|[0-9]{0,})(.[0-9]{1,2}))",
           },
         ],
       },
