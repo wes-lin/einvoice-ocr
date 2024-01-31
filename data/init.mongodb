@@ -15,194 +15,141 @@ db.user.insertMany([
   },
 ]);
 
-db.templates.drop();
-// db.templates.createIndex({"name":'text'});
-db.templates.insertMany([
+db.data_mapping.drop();
+db.data_mapping.insertMany([
   {
+    code: "orderDate",
+    regExp: [
+      "下单时间(.*)(?P<orderDate>[0-9]{4}-[0-9]{1,2}-[0-9]{1,2} [0-9]{2}:[0-9]{2}:[0-9]{2})",
+    ],
+  },
+  {
+    code: "orderMoney",
+    regExp: [
+      "总计\\s+(?P<orderMoney>([0-9]+|[0-9]{0,})(.[0-9]{1,2}))",
+      "合计\\s+(?P<orderMoney>([0-9]+|[0-9]{0,})(.[0-9]{1,2}))",
+      "实付款\\s+(?P<orderMoney>([0-9]+|[0-9]{0,})(.[0-9]{1,2}))",
+    ],
+  },
+  {
+    code: "invoiceDate",
+    regExp: ["开票日期:(?P<invoiceDate>[0-9]{4}年[0-9]{1,2}月[0-9]{1,2}日)"],
+  },
+  {
+    code: "invoiceDate",
+    regExp: ["（小写）(?P<invoiceMoney>([0-9]+|[0-9]{0,})(.[0-9]{1,2}))"],
+  },
+  {
+    code: "tripDate",
+    regExp: ["行程起止日期[^0-9]+(?P<tripDate>[0-9]{4}-[0-9]{1,2}-[0-9]{1,2})"],
+  },
+  {
+    code: "filedDate",
+    regExp: ["申请日期[^0-9]+(?P<filedDate>[0-9]{4}-[0-9]{1,2}-[0-9]{1,2})"],
+  },
+  {
+    code: "tripMoney",
+    regExp: ["合计(?P<tripMoney>([0-9]+|[0-9]{0,})(.[0-9]{1,2}))"],
+  },
+]);
+
+db.user_file.drop();
+// db.templates.createIndex({"name":'text'});
+db.user_file.insertMany([
+  {
+    userId: "65a761e49772db7cb4e186b4",
     name: "默认",
     group: "default",
     multipart: false,
     files: [
       {
         name: "订单",
-        keyword: "订单号码",
         type: "order",
-        dataMapping: [
+        vars: [
           {
+            label: "订单日期",
             code: "orderDate",
             dataType: "date",
-            regExp:
-              "下单时间(.*)(?P<orderDate>[0-9]{4}-[0-9]{1,2}-[0-9]{1,2} [0-9]{2}:[0-9]{2}:[0-9]{2})",
+            format: "%m%d",
           },
           {
+            label: "订单金额",
             code: "orderMoney",
             dataType: "num",
-            regExp: "总计\\s+(?P<orderMoney>([0-9]+|[0-9]{0,})(.[0-9]{1,2}))",
-          },
-          {
-            code: "orderMoney",
-            dataType: "num",
-            regExp: "合计\\s+(?P<orderMoney>([0-9]+|[0-9]{0,})(.[0-9]{1,2}))",
-          },
-          {
-            code: "orderMoney",
-            dataType: "num",
-            regExp: "实付款\\s+(?P<orderMoney>([0-9]+|[0-9]{0,})(.[0-9]{1,2}))",
+            format: "%.2f",
           },
         ],
+        fileName: "${userName}-${orderDate}-${orderMoney}.${fileExt}",
       },
       {
         name: "发票",
-        keyword: "发票代码",
         type: "invoice",
-        dataMapping: [
+        vars: [
           {
+            label: "开票日期",
             code: "invoiceDate",
             dataType: "date",
-            regExp:
-              "开票日期:(?P<invoiceDate>[0-9]{4}年[0-9]{1,2}月[0-9]{1,2}日)",
+            format: "%m%d",
           },
           {
+            label: "开票金额",
             code: "invoiceMoney",
             dataType: "num",
-            regExp: "（小写）(?P<invoiceMoney>([0-9]+|[0-9]{0,})(.[0-9]{1,2}))",
+            format: "%.2f",
           },
         ],
+        fileName: "${userName}-${invoiceDate}-${invoiceMoney}.${fileExt}",
       },
     ],
   },
   {
+    userId: "65a761e49772db7cb4e186b4",
     name: "滴滴",
     group: "didi",
-    subject: "滴滴出行",
     multipart: true,
+    keyword: "行程单",
     files: [
       {
         name: "滴滴行程单",
-        keyword: "行程单",
         type: "trip",
-        dataMapping: [
+        vars: [
           {
+            label: "行程日期",
             code: "tripDate",
             dataType: "date",
-            regExp:
-              "行程起止日期[^0-9]+(?P<tripDate>[0-9]{4}-[0-9]{1,2}-[0-9]{1,2})",
+            format: "%m%d",
           },
           {
-            code: "filedDate",
-            dataType: "date",
-            regExp:
-              "申请日期[^0-9]+(?P<filedDate>[0-9]{4}-[0-9]{1,2}-[0-9]{1,2})",
-          },
-          {
+            label: "订单金额",
             code: "tripMoney",
             dataType: "num",
-            regExp: "合计(?P<tripMoney>([0-9]+|[0-9]{0,})(.[0-9]{1,2}))",
+            format: "%.2f",
           },
         ],
+        fileName:
+          "${userName}-${tripDate}-${tripMoney}滴滴出行行程报销单.${fileExt}",
       },
       {
-        name: "滴滴发票",
-        keyword: "发票代码",
+        name: "发票",
         type: "invoice",
-        dataMapping: [
+        vars: [
           {
+            label: "开票日期",
             code: "invoiceDate",
             dataType: "date",
-            regExp:
-              "开票日期:(?P<invoiceDate>[0-9]{4}年[0-9]{1,2}月[0-9]{1,2}日)",
+            format: "%m%d",
           },
           {
+            label: "开票金额",
             code: "invoiceMoney",
             dataType: "num",
-            regExp: "（小写）(?P<invoiceMoney>([0-9]+|[0-9]{0,})(.[0-9]{1,2}))",
+            format: "%.2f",
           },
         ],
+        fileName:
+          "${userName}-${tripDate}-${invoiceMoney}滴滴电子发票.${fileExt}",
       },
     ],
-  },
-]);
-
-db.user_file_configs.drop();
-db.user_file_configs.insertMany([
-  {
-    userId: "65a761e49772db7cb4e186b4",
-    group: "default",
-    type: "order",
-    vars: [
-      {
-        code: "orderDate",
-        dataType: "date",
-        format: "%m%d",
-      },
-      {
-        code: "orderMoney",
-        dataType: "num",
-      },
-    ],
-    fileName: "${userName}-${orderDate}-${orderMoney}.${fileExt}",
-  },
-  {
-    userId: "65a761e49772db7cb4e186b4",
-    group: "default",
-    type: "invoice",
-    vars: [
-      {
-        code: "invoiceDate",
-        dataType: "date",
-        format: "%m%d",
-      },
-      {
-        code: "invoiceMoney",
-        dataType: "num",
-      },
-    ],
-    fileName: "${userName}-${invoiceDate}-${invoiceMoney}.${fileExt}",
-  },
-  {
-    userId: "65a761e49772db7cb4e186b4",
-    group: "didi",
-    type: "trip",
-    vars: [
-      {
-        code: "tripDate",
-        dataType: "date",
-        format: "%m%d",
-      },
-      {
-        code: "filedDate",
-        dataType: "date",
-        format: "%m%d",
-      },
-      {
-        code: "tripMoney",
-        dataType: "num",
-      },
-    ],
-    fileName:
-      "${userName}-${tripDate}-${tripMoney}滴滴出行行程报销单.${fileExt}",
-  },
-  {
-    userId: "65a761e49772db7cb4e186b4",
-    group: "didi",
-    type: "invoice",
-    vars: [
-      {
-        code: "tripDate",
-        dataType: "date",
-        format: "%m%d",
-      },
-      {
-        code: "invoiceDate",
-        dataType: "date",
-        format: "%m%d",
-      },
-      {
-        code: "invoiceMoney",
-        dataType: "num",
-      },
-    ],
-    fileName: "${userName}-${tripDate}-${invoiceMoney}滴滴电子发票.${fileExt}",
   },
 ]);
 
