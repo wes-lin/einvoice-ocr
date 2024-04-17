@@ -104,13 +104,12 @@ db.user_file.insertMany([
   },
   {
     userId: "65a761e49772db7cb4e186b4",
-    name: "滴滴",
+    name: "滴滴出行电子发票及行程报销单",
     group: "didi",
     multipart: true,
-    keyword: "行程单",
     files: [
       {
-        name: "滴滴行程单",
+        name: "滴滴出行行程报销单",
         type: "trip",
         vars: [
           {
@@ -130,7 +129,7 @@ db.user_file.insertMany([
           "${userName}-${tripDate}-${tripMoney}滴滴出行行程报销单.${fileExt}",
       },
       {
-        name: "发票",
+        name: "滴滴电子发票",
         type: "invoice",
         vars: [
           {

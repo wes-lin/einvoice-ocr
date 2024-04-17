@@ -74,12 +74,16 @@ def load_config(path):
     return config
 
 
-def get_template(subject):
-    _template = default_template
-    for template in templates:
-        if subject and template["subject"] in subject:
-            _template = template
-    return _template
+def get_user_template(userId, subject):
+    t = get_template(userId, subject)
+    if t == None:
+        t = get_template(userId, "默认")
+    return t
+
+
+@functools.cache
+def get_template(userId, subject):
+    return db["user_file"].find_one({"userId": userId, "name": subject})
 
 
 @functools.cache
@@ -96,7 +100,7 @@ def get_user_by_email(email: str):
 
 def send_result_messag(_from: str, attachments: List, content: MIMEBase):
     mm = MIMEMultipart()
-    mm["From"] = os.getenv("EMAIL_USER")
+    mm["From"] = os.getenv("SMTP_USER")
     mm["To"] = _from
     mm["Subject"] = Header(
         "Invoice Report {}".format(datetime.now().strftime("%Y%m%d%H%M%S")), "utf-8"
@@ -110,9 +114,9 @@ def send_result_messag(_from: str, attachments: List, content: MIMEBase):
                 attachment["new_file_name"],
             )
         )
-    obj = smtplib.SMTP("smtp-mail.outlook.com", 587)
+    obj = smtplib.SMTP(os.getenv("SMTP_URL"), 465)
     obj.starttls()
-    obj.login(os.getenv("EMAIL_USER"), os.getenv("EMAIL_PASSWORD"))
+    obj.login(os.getenv("EMAIL_USER"), os.getenv("EMAIL_PASS"))
     obj.send_message(mm)
     obj.quit()
     logging.warning("发送成功")
@@ -124,7 +128,7 @@ def extract_bill(message: EmailMessage, user):
     for _message in messages:
         attachments = get_attachments(_message)
         subject = decode_str(_message.get("subject"))
-        template = get_template(subject)
+        template = get_user_template(subject)
         _file_vars = {}
         for attachment in attachments:
             bill: Bill = attachment["bill"]
@@ -176,14 +180,12 @@ logging.basicConfig(encoding="utf-8", format="%(threadName)s %(asctime)s %(messa
 if __name__ == "__main__":
     client = MongoClient(os.getenv("DB_URL"))
     db = client["invoice"]
-    templates = list(db["templates"].find({"group": {"$ne": "default"}}))
-    default_template = db["templates"].find_one({"group": "default"})
     # email_file = open("test\\test.eml")
     # message: EmailMessage = email.message_from_file(email_file, _class=EmailMessage)
     # handle_email(message)
     logging.warning("开始读取邮件")
-    mail = imaplib.IMAP4_SSL("outlook.office365.com", 993)
-    mail.login(os.getenv("EMAIL_USER"), os.getenv("EMAIL_PASSWORD"))
+    mail = imaplib.IMAP4_SSL(os.getenv("IMAP_URL"), 993)
+    mail.login(os.getenv("EMAIL_USER"), os.getenv("EMAIL_PASS"))
     mail.select("inbox")
     status, uids = mail.search(None, "UNSEEN")
     if status != "OK":

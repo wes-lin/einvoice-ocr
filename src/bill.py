@@ -1,4 +1,5 @@
 import re
+import pdfplumber
 
 
 class Bill:
@@ -8,7 +9,7 @@ class Bill:
     def extract(self, rules):
         data = []
         for rule in rules:
-            objMatch = re.search(rule["regExp"], self.context)
+            objMatch = re.search(rule, self.context)
             if objMatch:
                 for key in objMatch.groupdict().keys():
                     val = objMatch.group(key)
@@ -17,3 +18,15 @@ class Bill:
 
     def get_context(self):
         return self.context
+
+
+class PDFBill(Bill):
+    def __init__(self, pdf):
+        self.pdf = pdfplumber.open(pdf)
+        context = ""
+        for page in self.pdf.pages:
+            context += page.extract_text()
+        super().__init__(context)
+
+    def __del__(self):
+        self.pdf.close()
