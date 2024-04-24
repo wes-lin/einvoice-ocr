@@ -1,3 +1,4 @@
+import ast
 from concurrent.futures import ThreadPoolExecutor
 from email.message import EmailMessage, Message
 from email.header import Header, decode_header
@@ -14,20 +15,30 @@ import email
 class GeneralTask:
 
     RULE_MAP = [
-        "下单时间.*(?P<orderDate>[0-9]{4}-[0-9]{1,2}-[0-9]{1,2} [0-9]{2}:[0-9]{2}:[0-9]{2})",
-        "总计\\s+(?P<orderMoney>([0-9]+|[0-9]{0,})(.[0-9]{1,2}))",
-        "合计\\s+(?P<orderMoney>([0-9]+|[0-9]{0,})(.[0-9]{1,2}))",
-        "实付款\\s+(?P<orderMoney>([0-9]+|[0-9]{0,})(.[0-9]{1,2}))",
-        "开票日期:(?P<invoiceDate>[0-9]{4}年[0-9]{1,2}月[0-9]{1,2}日)",
-        "（小写）(?P<invoiceMoney>([0-9]+|[0-9]{0,})(.[0-9]{1,2}))",
-        "行程起止日期[^0-9]+(?P<tripDate>[0-9]{4}-[0-9]{1,2}-[0-9]{1,2})",
-        "合计(?P<tripMoney>([0-9]+|[0-9]{0,})(.[0-9]{1,2}))",
-        "申请日期[^0-9]+(?P<filedDate>[0-9]{4}-[0-9]{1,2}-[0-9]{1,2})",
+        "下单时间.*(?P<order_date>[0-9]{4}-[0-9]{1,2}-[0-9]{1,2} [0-9]{2}:[0-9]{2}:[0-9]{2})",
+        "总计\\s+(?P<order_money>([0-9]+|[0-9]{0,})(.[0-9]{1,2}))",
+        "合计\\s+(?P<order_money>([0-9]+|[0-9]{0,})(.[0-9]{1,2}))",
+        "实付款\\s+(?P<order_money>([0-9]+|[0-9]{0,})(.[0-9]{1,2}))",
+        "开票日期:(?P<invoice_date>[0-9]{4}年[0-9]{1,2}月[0-9]{1,2}日)",
+        "（小写）(?P<invoice_money>([0-9]+|[0-9]{0,})(.[0-9]{1,2}))",
+        "行程起止日期[^0-9]+(?P<trip_date>[0-9]{4}-[0-9]{1,2}-[0-9]{1,2})",
+        "合计\\s+(?P<trip_money>([0-9]+|[0-9]{0,})(.[0-9]{1,2}))",
+        "申请日期[^0-9]+(?P<filed_date>[0-9]{4}-[0-9]{1,2}-[0-9]{1,2})",
     ]
 
-    def __init__(self) -> None:
+    def __init__(self, data_format) -> None:
         logging.basicConfig(
             encoding="utf-8", format="%(threadName)s %(asctime)s %(message)s"
+        )
+        self.data_format = data_format
+
+    @classmethod
+    def initsec(self):
+        return self(
+            {
+                "order_date": {"data_type": "date", "format": "%m%d"},
+                "order_money": {"data_type": "num", "format": "%.2f"},
+            }
         )
 
     def decode_str(self, s):
@@ -57,12 +68,26 @@ class GeneralTask:
         else:
             logging.error("unsupport file:{}".format(file_name))
             return None
+        vars = self.format_vars(bill.extract(self.RULE_MAP))
         return {
             "file_name": file_name,
             "content_type": content_type,
             # "payload": base64.b64decode(message.get_payload()),
-            "data": bill.extract(self.RULE_MAP),
+            "vars": vars,
         }
+
+    def format_vars(self, vars):
+        for k, v in vars.items():
+            if k in self.data_format:
+                format = self.data_format[k]
+                newv = v
+                match format["data_type"]:
+                    case "date":
+                        newv = date_convert(v, format["format"])
+                    case "num":
+                        newv = format["format"] % ast.literal_eval(v)
+                vars[k] = newv
+        return vars
 
     def get_attachments(self, message: EmailMessage):
         tasks = []
@@ -84,5 +109,5 @@ class GeneralTask:
 if __name__ == "__main__":
     email_file = open("..\\test\\test.eml")
     message: EmailMessage = email.message_from_file(email_file, _class=EmailMessage)
-    test = GeneralTask()
+    test = GeneralTask.initsec()
     test.execute(message)

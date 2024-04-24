@@ -7,13 +7,13 @@ class Bill:
         self.context = re.sub(r"^\s+|￥|¥|\n|\r|<br />", "", context)
 
     def extract(self, rules):
-        data = []
+        data = {}
         for rule in rules:
             objMatch = re.search(rule, self.context)
             if objMatch:
                 for key in objMatch.groupdict().keys():
                     val = objMatch.group(key)
-                    data.append((key, val))
+                    data[key] = val
         return data
 
     def get_context(self):
